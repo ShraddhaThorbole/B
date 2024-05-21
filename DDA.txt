@@ -1,0 +1,75 @@
+#include <iostream>
+#include <GL/glut.h>
+#include <cmath> 
+
+using namespace std;
+
+void myInit(){
+    glClearColor(1,0,0.5,1);
+    glViewport(0,0,800,800);
+    gluOrtho2D(0,800,0,800);
+}
+
+void line(int x1, int y1, int x2, int y2){
+    glBegin(GL_LINES); 
+        glVertex2i(x1, y1);
+        glVertex2i(x2, y2);
+    glEnd();
+    glFlush();
+}
+
+void axis(){
+    glColor3f(1,1,1);
+    line(0,400,800,400);
+    line(400,0,400,800);
+}
+
+void setpixel(int x, int y) {
+    glBegin(GL_POINTS);
+        glVertex2i(x, y);
+    glEnd();
+}
+
+// Function to draw a DDA line
+void DDA(int x1, int y1, int x2, int y2) {
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy); // Use std::abs
+
+    float incx = static_cast<float>(dx) / steps;
+    float incy = static_cast<float>(dy) / steps;
+    float x = x1;
+    float y = y1;
+
+    for (int i = 0; i <= steps; i++) {
+        setpixel(round(x), round(y));  // Rounding float values to integers
+        x += incx;
+        y += incy;
+    }
+    glFlush();
+}
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    glLineWidth(3);
+    glColor3f(1,1,1);
+    axis();
+
+    // Draw line using DDA algorithm
+    glColor3f(1.0, 1.0, 1.0); 
+    DDA(100, 100, 700, 700); // Call DDA to draw line
+
+    glFlush();
+}
+
+int main(int c, char **v){
+    glutInit(&c, v);
+    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+    glutInitWindowPosition(800,150);
+    glutInitWindowSize(800,800);
+    glutCreateWindow("DDA LINE");
+    myInit();
+    glutDisplayFunc(display);
+    glutMainLoop();
+    return 0;
+}

@@ -1,0 +1,93 @@
+#include <GL/glut.h>
+#include <iostream>
+
+using namespace std;
+
+int choice;
+
+void myInit() {
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glMatrixMode(GL_PROJECTION);
+    gluOrtho2D(0, 800, 0, 800);
+}
+
+void myDisplay() {
+    glLineWidth(3);
+    glPointSize(2);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(400, 600);
+    glVertex2i(600, 200);
+    glVertex2i(200, 200);
+    glEnd();
+    glFlush();
+}
+
+void boundaryFill(int x, int y, float* b, float* f) {
+    float current[3];
+    glReadPixels(x, y, 1.0, 1.0, GL_RGB, GL_FLOAT, current);
+
+    if ((current[0] != b[0] || current[1] != b[1] || current[2] != b[2]) &&
+        (current[0] != f[0] || current[1] != f[1] || current[2] != f[2])) {
+        glColor3f(f[0], f[1], f[2]);
+        glBegin(GL_POINTS);
+        glVertex2i(x, y);
+        glEnd();
+        glFlush();
+
+        boundaryFill(x + 2, y, b, f);
+        boundaryFill(x - 2, y, b, f);
+        boundaryFill(x, y + 2, b, f);
+        boundaryFill(x, y - 2, b, f);
+    }
+}
+
+void floodFill(int x, int y, float* o, float* n) {
+    float current[3];
+    glReadPixels(x, y, 1.0, 1.0, GL_RGB, GL_FLOAT, current);
+
+    if (current[0] == o[0] && current[1] == o[1] && current[2] == o[2]) {
+        glColor3f(n[0], n[1], n[2]);
+        glBegin(GL_POINTS);
+        glVertex2i(x, y);
+        glEnd();
+        glFlush();
+
+        floodFill(x + 2, y, o, n);
+        floodFill(x - 2, y, o, n);
+        floodFill(x, y + 2, o, n);
+        floodFill(x, y - 2, o, n);
+    }
+}
+
+void mouse(int btn, int state, int x, int y) {
+    y = 800 - y;
+    if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        if (choice == 1) {
+            float b[] = {1.0, 0.0, 0.0};
+            float f[] = {0.0, 1.0, 0.0};
+            boundaryFill(x, y, b, f);
+        } else {
+            float o[] = {1.0, 1.0, 1.0};
+            float n[] = {0.0, 1.0, 0.0};
+            floodFill(x, y, o, n);
+        }
+    }
+}
+
+int main(int argc, char** argv) {
+    cout << "Choose fill type: 1. Boundary Fill 2. Flood Fill" << endl;
+    cin >> choice;
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(800, 800);
+    glutInitWindowPosition(800, 150);
+    glutCreateWindow("Filling");
+    glutDisplayFunc(myDisplay);
+    glutMouseFunc(mouse);
+    myInit();
+    glutMainLoop();
+    return 0;
+}

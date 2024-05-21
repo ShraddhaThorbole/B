@@ -1,0 +1,87 @@
+BRESENHAM CIRCLE                                                                                                                                                        #include<iostream>
+#include<GL/glut.h>
+#include<cstdlib>
+
+using namespace std;
+
+void myInit(){
+	glClearColor(1,0,0.5,1);
+	glViewport(0,0,800,800);
+	gluOrtho2D(0,800,0,800);
+}
+
+void line(int x1,int y1,int x2,int y2){
+	
+	glBegin(GL_LINE_LOOP);
+        glVertex2i(x1,y1);
+        glVertex2i(x2,y2);
+	glEnd();
+	glFlush();
+}
+
+void axis(){
+	
+	glColor3f(1,1,1);
+	line(0,400,800,400);
+	line(400,0,400,800);
+}
+	
+void setpixel(int x, int y) {
+    glBegin(GL_POINTS);
+    	glVertex2i(x, y);
+    glEnd();
+}
+	
+void draw_circ(int x, int y, int x1, int y1) {
+    setpixel(x1 + x, y1 + y);
+    setpixel(x1 - x, y1 + y);
+    setpixel(x1 + x, y1 - y);
+    setpixel(x1 - x, y1 - y);
+    setpixel(x1 - y, y1 + x);
+    setpixel(x1 - y, y1 - x);
+    setpixel(x1 + y, y1 + x);
+    setpixel(x1 + y, y1 - x);
+}
+
+void bres_circ(int r, int xc, int yc) {
+    int d = 3 - 2 * r;
+    int x = 0;
+    int y = r;
+
+    while (x <= y) {
+        draw_circ(x, y, xc, yc);
+        if (d < 0) {
+            d = d + 4 * x + 6;
+        } else {
+            d = d + 4 * (x - y) + 10;
+            y--;
+        }
+        x++;
+    }
+}
+
+void display(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glLineWidth(3);
+	glColor3f(1,1,1);
+    axis();
+    bres_circ(100, 250, 250);
+    glFlush();
+}
+
+int main(int c,char **v){
+	
+	glutInit(&c,v);
+	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+	
+	glutInitWindowPosition(800,150);
+	glutInitWindowSize(800,800);
+	glutCreateWindow("BRESENHAM CIRCLE");
+	
+	myInit();
+	
+	glutDisplayFunc(display);
+	
+	glutMainLoop();
+	return 0;
+}

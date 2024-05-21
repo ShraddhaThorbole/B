@@ -1,0 +1,120 @@
+#include <iostream>
+#include <cmath>
+#include <GL/glut.h>
+
+using namespace std;
+
+const float PI = 3.14159265;
+
+// Define the coordinates of the decagon
+float decagon_x[10], decagon_y[10], nx[10], ny[10];
+int c;
+float sx, sy, xt, yt, r, t;
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_LINES);
+    glVertex2i(-500, 0);
+    glVertex2i(500, 0);
+    glVertex2i(0, -400);
+    glVertex2i(0, 400);
+    glEnd();
+
+    // Draw decagon
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < 10; i++)
+        glVertex2f(decagon_x[i], decagon_y[i]);
+    glEnd();
+
+glColor3f(1.0, 0.0, 1.0);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < 10; i++)
+        glVertex2f(nx[i], ny[i]);
+    glEnd();
+    glFlush();
+
+    glFlush();
+}
+
+void myinit() {
+    glClearColor(0.0, 0.0, 0.0, 1.0); // Set clear color to black
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-500.0, 500.0, -500.0, 500.0); // Set the coordinate system
+}
+
+void createDecagon() {
+    float angle = 360.0 / 10.0; // Angle between each side
+    float initial_angle = 90.0; // Starting angle
+
+    for (int i = 0; i < 10; ++i) {
+        float radians = (initial_angle + angle * i) * PI / 180.0;
+        decagon_x[i] = 100 * cos(radians); // Decagon radius is set to 100
+        decagon_y[i] = 100 * sin(radians);
+    }
+}
+
+int main(int argc, char** argv) {
+    createDecagon(); // Initialize decagon coordinates
+
+    while (1) {
+        cout << "\n1.Translation\n2.Rotation\n3.Scaling\n4.Exit\nEnter your choice: ";
+        cin >> c;
+
+        switch (c) {
+            case 1:
+                cout << "\nEnter the translation factor x: ";
+                cin >> xt;
+                cout << "\nEnter the translation factor y: ";
+                cin >> yt;
+                // Translate decagon
+                for (int i = 0; i < 10; i++) {
+                    nx[i] = decagon_x[i] + xt;
+                    ny[i] = decagon_y[i] + yt;
+                }
+                break;
+
+            case 2:
+                cout << "\nEnter the angle of rotation: ";
+                cin >> r;
+                t = r * PI / 180.0; // Convert to radians
+                // Rotate decagon
+                for (int i = 0; i < 10; i++) {
+                    nx[i] = (decagon_x[i] * cos(t) - decagon_y[i] * sin(t));
+                    ny[i] = (decagon_x[i] * sin(t) + decagon_y[i] * cos(t));
+                }
+                break;
+
+            case 3:
+                cout << "\nEnter the scaling factor x: ";
+                cin >> sx;
+                cout << "\nEnter the scaling factor y: ";
+                cin >> sy;
+                // Scale decagon
+                for (int i = 0; i < 10; i++) {
+                    nx[i] = decagon_x[i] * sx;
+                    ny[i] = decagon_y[i] * sy;
+                }
+                break;
+
+            case 4:
+                exit(0);
+
+            default:
+                cout << "Invalid choice!" << endl;
+        }
+
+        glutInit(&argc, argv);
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+        glutInitWindowSize(800, 800);
+        glutInitWindowPosition(0, 0);
+        glutCreateWindow("Decagon Transformation");
+        glutDisplayFunc(display);
+        myinit();
+        glutMainLoop();
+    }
+
+    return 0;
+}
